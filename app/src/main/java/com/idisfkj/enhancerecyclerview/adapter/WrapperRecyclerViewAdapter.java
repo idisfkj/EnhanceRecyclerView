@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.idisfkj.enhancerecyclerview.view.EnhanceRecyclerView;
 
@@ -91,12 +92,28 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
     }
 
+    public void setVisibility(View view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        if (view.getVisibility() == View.GONE) {
+            params.width = 0;
+            params.height = 0;
+        } else {
+            params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+            params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        }
+        view.setLayoutParams(params);
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType >= EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE + getHeadersCount()) {
-            return viewHolder(mHeaderViewInfos.get(viewType - EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE).view);
+            View view = mHeaderViewInfos.get(viewType - EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE).view;
+            setVisibility(view);
+            return viewHolder(view);
         } else if (viewType >= EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE + getFootersCount()) {
-            return viewHolder(mFooterViewInfos.get(viewType - EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE).view);
+            View view = mFooterViewInfos.get(viewType - EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE).view;
+            setVisibility(view);
+            return viewHolder(view);
         }
         return mAdapter.onCreateViewHolder(parent, viewType);
     }
