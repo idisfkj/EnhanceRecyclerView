@@ -91,6 +91,11 @@ public class EnhanceRecyclerView extends RecyclerView {
     }
 
     @Override
+    public Adapter getAdapter() {
+        return mAdapter;
+    }
+
+    @Override
     public void setLayoutManager(LayoutManager layout) {
         if (layout instanceof GridLayoutManager || layout instanceof StaggeredGridLayoutManager)
             isShouldSpan = true;
