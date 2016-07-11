@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private View view;
     private RecyclerView.Adapter adapter;
     private ArrayList<String> list;
-    private boolean isLoad = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,23 +42,25 @@ public class MainActivity extends AppCompatActivity {
 //        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL));
 
-
         list = new ArrayList<>();
         for (int i = 0; i < 13; i++)
             list.add("no thing " + i);
 
-//        view = LayoutInflater.from(this).inflate(R.layout.footer_layout, null);
-        view = LayoutInflater.from(this).inflate(R.layout.head_layout, null);
-//        mRecyclerView.addFooterView(view);
-        mRecyclerView.addHeaderView(view);
         adapter = new RecyclerViewAdapter(this, list);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.addItemDecoration(new MyItemDecoration(this));
 
-        mRecyclerView.setPullToRefreshing(new EnhanceRecyclerView.PullToRefresh() {
+        mRecyclerView.setPullToRefreshListener(new EnhanceRecyclerView.PullToRefreshListener() {
             @Override
             public void onRefreshing() {
                 mHandler.sendEmptyMessageDelayed(2, 3000);
+            }
+        });
+
+        mRecyclerView.setLoadMoreListener(new EnhanceRecyclerView.LoadMoreListener() {
+            @Override
+            public void onLoadMore() {
+                mHandler.sendEmptyMessageDelayed(1,3000);
             }
         });
 
@@ -69,14 +70,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 1) {
-                ViewGroup.LayoutParams params = view.getLayoutParams();
-                params.width = 0;
-                params.height = 0;
-                view.setLayoutParams(params);
-                view.setVisibility(View.GONE);
                 for (int i = 0; i < 7; i++)
                     list.add(i + " no thing");
-                isLoad = false;
+                mRecyclerView.setLoadMoreComplete();
             }
             if (msg.what == 2) {
                 for (int i = 0; i < 2; i++)

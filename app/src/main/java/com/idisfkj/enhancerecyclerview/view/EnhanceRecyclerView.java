@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,8 @@ public class EnhanceRecyclerView extends RecyclerView {
     private int endY;
     private int moveY = 0;
     private TextView text;
-    private PullToRefresh pullToRefresh;
+    private PullToRefreshListener pullToRefresh;
+    private LoadMoreListener loadMoreListener;
 
     public class FixedViewInfo {
         public View view;
@@ -53,34 +55,42 @@ public class EnhanceRecyclerView extends RecyclerView {
 
     public EnhanceRecyclerView(Context context) {
         super(context);
+        initView();
     }
 
     public EnhanceRecyclerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        initView();
     }
 
     public EnhanceRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        initView();
     }
 
-    public void init() {
+    public void initView() {
+        View headerView = LayoutInflater.from(getContext()).inflate(R.layout.head_layout, null);
+        View footerView = LayoutInflater.from(getContext()).inflate(R.layout.footer_layout, null);
+        addHeaderView(headerView);
+        addFooterView(footerView);
+    }
+
+    public void initListener() {
         text = (TextView) getHeaderView(0).findViewById(R.id.header_text);
         this.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (lastItem == adapter.getItemCount() && newState == RecyclerView.SCROLL_STATE_IDLE && !isLoad) {
-                    Log.d("TAG", "--------------->OK<----------------");
-                    ViewGroup.LayoutParams params = getHeaderView(0).getLayoutParams();
-                    params.width = LinearLayout.LayoutParams.MATCH_PARENT;
-                    params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                    getHeaderView(0).setLayoutParams(params);
-                    getHeaderView(0).setVisibility(View.VISIBLE);
-                    recyclerView.smoothScrollToPosition(totalCount);
+                if (lastItem == adapter.getItemCount() + 1 && newState == RecyclerView.SCROLL_STATE_IDLE && !isLoad) {
+                    ViewGroup.LayoutParams params = getFooterView(0).getLayoutParams();
+                    params.width = RecyclerView.LayoutParams.MATCH_PARENT;
+                    params.height = RecyclerView.LayoutParams.WRAP_CONTENT;
+                    getFooterView(0).setLayoutParams(params);
+                    getFooterView(0).setVisibility(View.VISIBLE);
+                    smoothScrollToPosition(totalCount);
                     isLoad = true;
-//                    mHandler.sendEmptyMessageDelayed(1, 2000);
+                    loadMoreListener.onLoadMore();
                 }
-                Log.d("TAG", firstVisible + "==");
                 if (firstVisible == 0) {
                     isTop = true;
                 } else {
@@ -88,7 +98,7 @@ public class EnhanceRecyclerView extends RecyclerView {
                     RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
                     params.width = RecyclerView.LayoutParams.MATCH_PARENT;
                     params.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-                    params.setMargins(0, -100, 0, 0);
+                    params.setMargins(0, -130, 0, 0);
                     getHeaderView(0).setLayoutParams(params);
                 }
 
@@ -97,13 +107,13 @@ public class EnhanceRecyclerView extends RecyclerView {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                totalCount = recyclerView.getLayoutManager().getItemCount();
-                if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
-                    lastItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-                    firstVisible = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                totalCount = getLayoutManager().getItemCount();
+                if (getLayoutManager() instanceof LinearLayoutManager) {
+                    lastItem = ((LinearLayoutManager) getLayoutManager()).findLastVisibleItemPosition();
+                    firstVisible = ((LinearLayoutManager) getLayoutManager()).findFirstVisibleItemPosition();
                 } else {
-                    into = ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPositions(into);
-                    firstInto = ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPositions(firstInto);
+                    into = ((StaggeredGridLayoutManager) getLayoutManager()).findLastVisibleItemPositions(into);
+                    firstInto = ((StaggeredGridLayoutManager) getLayoutManager()).findFirstVisibleItemPositions(firstInto);
                     lastItem = into[0];
                     firstVisible = firstInto[0];
                 }
@@ -119,41 +129,10 @@ public class EnhanceRecyclerView extends RecyclerView {
                             startY = (int) event.getY();
                             break;
                         case MotionEvent.ACTION_MOVE:
-                            endY = (int) event.getY();
-                            moveY = endY - startY;
-                            //防止item向上滑出
-                            if (moveY > 0 && !isRefreshing) {
-                                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
-                                params.width = RecyclerView.LayoutParams.MATCH_PARENT;
-                                params.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-                                //使header随moveY的值从顶部渐渐出现
-                                moveY = moveY - 100;
-                                params.setMargins(0, moveY, 0, 0);
-                                getHeaderView(0).setLayoutParams(params);
-                                if (moveY > 180) {
-                                    text.setText(getResources().getString(R.string.release_to_refresh));
-                                } else {
-                                    text.setText(getResources().getString(R.string.pull_to_refresh));
-                                }
-                            }
+                            touchMove(event);
                             break;
                         case MotionEvent.ACTION_UP:
-                            if (!isRefreshing) {
-                                RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
-                                params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
-                                params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-
-                                if (moveY >= 180) {
-                                    text.setText(getResources().getString(R.string.refreshing));
-                                    params1.setMargins(0, 0, 0, 0);
-                                    isRefreshing = true;
-                                    //刷新数据
-                                    pullToRefresh.onRefreshing();
-                                } else {
-                                    params1.setMargins(0, -100, 0, 0);
-                                }
-                                getHeaderView(0).setLayoutParams(params1);
-                            }
+                            touchUp();
                             break;
                     }
                 }
@@ -162,9 +141,62 @@ public class EnhanceRecyclerView extends RecyclerView {
         });
     }
 
+    public void touchMove(MotionEvent event){
+        endY = (int) event.getY();
+        moveY = endY - startY;
+        //防止item向上滑出
+        if (moveY > 0 && !isRefreshing) {
+            if (getHeaderView(0).getVisibility() == GONE)
+                getHeaderView(0).setVisibility(VISIBLE);
+
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
+            params.width = RecyclerView.LayoutParams.MATCH_PARENT;
+            params.height = RecyclerView.LayoutParams.WRAP_CONTENT;
+            //使header随moveY的值从顶部渐渐出现
+            if (moveY >= 400){
+                moveY = 100 + moveY / 4;
+            }else {
+                moveY = moveY / 2;
+            }
+            moveY = moveY - 130;
+            Log.d("TAG","moveY:"+moveY);
+            params.setMargins(0, moveY, 0, 0);
+            getHeaderView(0).setLayoutParams(params);
+            if (moveY > 80) {
+                text.setText(getResources().getString(R.string.release_to_refresh));
+            } else {
+                text.setText(getResources().getString(R.string.pull_to_refresh));
+            }
+        } else {
+            if (getHeaderView(0).getVisibility() != GONE && !isRefreshing) {
+                getHeaderView(0).setVisibility(GONE);
+            }
+        }
+    }
+
+    public void touchUp(){
+        if (!isRefreshing) {
+            RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
+            params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
+            params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
+
+            if (moveY >= 80) {
+                text.setText(getResources().getString(R.string.refreshing));
+                params1.setMargins(0, 0, 0, 0);
+                isRefreshing = true;
+                //刷新数据
+                pullToRefresh.onRefreshing();
+            } else {
+                params1.setMargins(0, -130, 0, 0);
+                getHeaderView(0).setVisibility(GONE);
+            }
+            getHeaderView(0).setLayoutParams(params1);
+        }
+    }
+
     public void addHeaderView(View view) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, -100, 0, 0);
+        params.setMargins(0, -120, 0, 0);
         view.setLayoutParams(params);
 
         FixedViewInfo info = new FixedViewInfo();
@@ -185,6 +217,9 @@ public class EnhanceRecyclerView extends RecyclerView {
     }
 
     public void addFooterView(View view) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        view.setLayoutParams(params);
+
         FixedViewInfo info = new FixedViewInfo();
         info.view = view;
         info.viewType = BASE_FOOTER_VIEW_TYPE + mFooterViewInfos.size();
@@ -226,21 +261,45 @@ public class EnhanceRecyclerView extends RecyclerView {
         super.setLayoutManager(layout);
     }
 
-    public interface PullToRefresh {
+    public interface PullToRefreshListener {
         void onRefreshing();
     }
 
-    public void setPullToRefreshing(PullToRefresh pullToRefresh) {
-        init();
+    public void setPullToRefreshListener(PullToRefreshListener pullToRefresh) {
+        if (loadMoreListener == null) {
+            initListener();
+        }
         this.pullToRefresh = pullToRefresh;
+    }
+
+    public interface LoadMoreListener {
+        void onLoadMore();
+    }
+
+    public void setLoadMoreListener(LoadMoreListener loadMoreListener) {
+        if (pullToRefresh == null) {
+            initListener();
+        }
+        this.loadMoreListener = loadMoreListener;
+    }
+
+    public void setLoadMoreComplete() {
+        RecyclerView.LayoutParams params = (LayoutParams) getFooterView(0).getLayoutParams();
+        params.width = 0;
+        params.height = 0;
+        getFooterView(0).setLayoutParams(params);
+        getFooterView(0).setVisibility(View.GONE);
+        this.getAdapter().notifyDataSetChanged();
+        isLoad = false;
     }
 
     public void setRefreshComplete() {
         RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
         params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
         params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-        params1.setMargins(0, -100, 0, 0);
+        params1.setMargins(0, -130, 0, 0);
         getHeaderView(0).setLayoutParams(params1);
+        getHeaderView(0).setVisibility(GONE);
         this.getAdapter().notifyDataSetChanged();
         isRefreshing = false;
     }

@@ -22,6 +22,7 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.Adapter mAdapter;
     public ArrayList<EnhanceRecyclerView.FixedViewInfo> EMPTY_INFO_LIST = new ArrayList<>();
     private boolean isStaggered;
+    private boolean isFooter;
 
 
     public WrapperRecyclerViewAdapter(ArrayList<EnhanceRecyclerView.FixedViewInfo> headerViewInfos,
@@ -108,11 +109,11 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType >= EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE + getHeadersCount()) {
             View view = mHeaderViewInfos.get(viewType - EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE).view;
-//            setVisibility(view);
+            isFooter = false;
             return viewHolder(view);
         } else if (viewType >= EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE + getFootersCount()) {
             View view = mFooterViewInfos.get(viewType - EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE).view;
-            setVisibility(view);
+            isFooter = true;
             return viewHolder(view);
         }
         return mAdapter.onCreateViewHolder(parent, viewType);
@@ -176,12 +177,13 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
     }
 
-    private RecyclerView.ViewHolder viewHolder(View itemView) {
+    private RecyclerView.ViewHolder viewHolder(final View itemView) {
 
         if (isStaggered) {
             StaggeredGridLayoutManager.LayoutParams params = new StaggeredGridLayoutManager.LayoutParams(StaggeredGridLayoutManager.LayoutParams.MATCH_PARENT,
                     StaggeredGridLayoutManager.LayoutParams.WRAP_CONTENT);
-            params.setMargins(0, -100, 0, 0);
+            if (!isFooter)
+            params.setMargins(0, -130, 0, 0);
             params.setFullSpan(true);
             itemView.setLayoutParams(params);
         }
