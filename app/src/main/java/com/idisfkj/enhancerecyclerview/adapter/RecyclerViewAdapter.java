@@ -5,8 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.idisfkj.enhancerecyclerview.R;
 
 import java.util.List;
@@ -37,7 +38,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.itemTv.setText(mListString.get(position));
+//        holder.itemTv.setText(mListString.get(position));
+        Glide.with(mContext).load(mListString.get(position))
+                .placeholder(R.drawable.def)
+                .into(holder.iv);
     }
 
     @Override
@@ -46,8 +50,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.item_tv)
-        TextView itemTv;
+//        @Bind(R.id.item_tv)
+//        TextView itemTv;
+        @Bind(R.id.iv)
+        ImageView iv;
 
         ViewHolder(View view) {
             super(view);

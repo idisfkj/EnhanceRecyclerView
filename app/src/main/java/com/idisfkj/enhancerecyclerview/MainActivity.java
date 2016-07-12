@@ -1,8 +1,6 @@
 package com.idisfkj.enhancerecyclerview;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -44,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         list = new ArrayList<>();
         for (int i = 0; i < 13; i++)
-            list.add("no thing " + i);
+            list.add("https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3434000068,2874621746&fm=116&gp=0.jpg");
 
         adapter = new RecyclerViewAdapter(this, list);
         mRecyclerView.setAdapter(adapter);
@@ -53,35 +51,49 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setPullToRefreshListener(new EnhanceRecyclerView.PullToRefreshListener() {
             @Override
             public void onRefreshing() {
-                mHandler.sendEmptyMessageDelayed(2, 3000);
+//                mHandler.sendEmptyMessageDelayed(2, 3000);
+                refreshData();
             }
         });
 
         mRecyclerView.setLoadMoreListener(new EnhanceRecyclerView.LoadMoreListener() {
             @Override
             public void onLoadMore() {
-                mHandler.sendEmptyMessageDelayed(1,3000);
+//                mHandler.sendEmptyMessageDelayed(1,3000);
+                loadMoreData();
             }
         });
 
     }
 
-    Handler mHandler = new Handler() {
+    public void refreshData(){
+        for (int i = 0; i < 2; i++)
+            list.add(0, "http://img15.3lian.com/2015/a1/16/d/202.jpg");
+        mRecyclerView.setRefreshComplete();
+    }
+
+    public void loadMoreData(){
+         for (int i = 0; i < 7; i++)
+             list.add("http://a.hiphotos.baidu.com/image/pic/item/03087bf40ad162d96270c41b13dfa9ec8a13cd1f.jpg");
+        mRecyclerView.setLoadMoreComplete();
+    }
+
+   /* Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 1) {
                 for (int i = 0; i < 7; i++)
-                    list.add(i + " no thing");
+                    list.add("http://a.hiphotos.baidu.com/image/pic/item/03087bf40ad162d96270c41b13dfa9ec8a13cd1f.jpg");
                 mRecyclerView.setLoadMoreComplete();
             }
             if (msg.what == 2) {
                 for (int i = 0; i < 2; i++)
-                    list.add(0, "add" + i + " no thing importance!");
+                    list.add(0, "http://img15.3lian.com/2015/a1/16/d/202.jpg");
                 mRecyclerView.setRefreshComplete();
             }
             super.handleMessage(msg);
         }
-    };
+    };*/
 
 
     @Override
