@@ -7,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,9 +32,9 @@ public class EnhanceRecyclerView extends RecyclerView {
     private boolean isRefreshing = false;
     private int[] into;
     private int[] firstInto;
-    private int startY = 0;
-    private int endY;
-    private int moveY = 0;
+    private float startY = 0;
+    private float endY;
+    private float moveY = 0;
     private TextView text;
     private PullToRefreshListener pullToRefresh;
     private LoadMoreListener loadMoreListener;
@@ -98,7 +97,7 @@ public class EnhanceRecyclerView extends RecyclerView {
                     RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
                     params.width = RecyclerView.LayoutParams.MATCH_PARENT;
                     params.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-                    params.setMargins(0, -130, 0, 0);
+                    params.setMargins(0, -getHeaderView(0).getHeight(), 0, 0);
                     getHeaderView(0).setLayoutParams(params);
                 }
 
@@ -126,7 +125,7 @@ public class EnhanceRecyclerView extends RecyclerView {
                 if (isTop) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-                            startY = (int) event.getY();
+                            startY = event.getY();
                             break;
                         case MotionEvent.ACTION_MOVE:
                             touchMove(event);
@@ -142,10 +141,13 @@ public class EnhanceRecyclerView extends RecyclerView {
     }
 
     public void touchMove(MotionEvent event){
-        endY = (int) event.getY();
+        endY = event.getY();
         moveY = endY - startY;
         //防止item向上滑出
         if (moveY > 0 && !isRefreshing) {
+            //防止回退文本显示异常
+            scrollToPosition(0);
+
             if (getHeaderView(0).getVisibility() == GONE)
                 getHeaderView(0).setVisibility(VISIBLE);
 
@@ -158,9 +160,8 @@ public class EnhanceRecyclerView extends RecyclerView {
             }else {
                 moveY = moveY / 2;
             }
-            moveY = moveY - 130;
-            Log.d("TAG","moveY:"+moveY);
-            params.setMargins(0, moveY, 0, 0);
+            moveY = moveY - getHeaderView(0).getHeight();
+            params.setMargins(0, (int) moveY, 0, 0);
             getHeaderView(0).setLayoutParams(params);
             if (moveY > 80) {
                 text.setText(getResources().getString(R.string.release_to_refresh));
@@ -175,29 +176,30 @@ public class EnhanceRecyclerView extends RecyclerView {
     }
 
     public void touchUp(){
-        if (!isRefreshing) {
-            RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
-            params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
-            params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
+            if (!isRefreshing) {
+                RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
+                params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
+                params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
 
-            if (moveY >= 80) {
-                text.setText(getResources().getString(R.string.refreshing));
-                params1.setMargins(0, 0, 0, 0);
-                isRefreshing = true;
-                //刷新数据
-                pullToRefresh.onRefreshing();
-            } else {
-                params1.setMargins(0, -130, 0, 0);
-                getHeaderView(0).setVisibility(GONE);
+                if (moveY >= 80) {
+                    text.setText(getResources().getString(R.string.refreshing));
+                    params1.setMargins(0, 0, 0, 0);
+                    isRefreshing = true;
+                    //刷新数据
+                    pullToRefresh.onRefreshing();
+                } else {
+                    params1.setMargins(0, -130, 0, 0);
+                    getHeaderView(0).setVisibility(GONE);
+                }
+                getHeaderView(0).setLayoutParams(params1);
             }
-            getHeaderView(0).setLayoutParams(params1);
-        }
     }
 
     public void addHeaderView(View view) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, -120, 0, 0);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
+//        params.setMargins(0, -130, 0, 0);
         view.setLayoutParams(params);
+        view.setVisibility(GONE);
 
         FixedViewInfo info = new FixedViewInfo();
         info.view = view;
@@ -297,7 +299,7 @@ public class EnhanceRecyclerView extends RecyclerView {
         RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
         params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
         params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
-        params1.setMargins(0, -130, 0, 0);
+        params1.setMargins(0, -getHeaderView(0).getHeight(), 0, 0);
         getHeaderView(0).setLayoutParams(params1);
         getHeaderView(0).setVisibility(GONE);
         this.getAdapter().notifyDataSetChanged();

@@ -110,10 +110,12 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         if (viewType >= EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE + getHeadersCount()) {
             View view = mHeaderViewInfos.get(viewType - EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE).view;
             isFooter = false;
+//            setVisibility(view);
             return viewHolder(view);
         } else if (viewType >= EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE + getFootersCount()) {
             View view = mFooterViewInfos.get(viewType - EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE).view;
             isFooter = true;
+            setVisibility(view);
             return viewHolder(view);
         }
         return mAdapter.onCreateViewHolder(parent, viewType);
