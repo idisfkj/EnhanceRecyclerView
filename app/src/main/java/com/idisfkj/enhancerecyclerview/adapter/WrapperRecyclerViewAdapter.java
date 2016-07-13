@@ -24,7 +24,6 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private boolean isStaggered;
     private boolean isFooter;
 
-
     public WrapperRecyclerViewAdapter(ArrayList<EnhanceRecyclerView.FixedViewInfo> headerViewInfos,
                                       ArrayList<EnhanceRecyclerView.FixedViewInfo> footerViewInfos,
                                       RecyclerView.Adapter adapter) {
@@ -183,9 +182,9 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
         if (isStaggered) {
             StaggeredGridLayoutManager.LayoutParams params = new StaggeredGridLayoutManager.LayoutParams(StaggeredGridLayoutManager.LayoutParams.MATCH_PARENT,
-                    StaggeredGridLayoutManager.LayoutParams.WRAP_CONTENT);
-            if (!isFooter)
-            params.setMargins(0, -130, 0, 0);
+                    0);
+//            if (!isFooter)
+//                params.setMargins(0, -130, 0, 0);
             params.setFullSpan(true);
             itemView.setLayoutParams(params);
         }

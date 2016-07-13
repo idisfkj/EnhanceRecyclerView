@@ -38,6 +38,7 @@ public class EnhanceRecyclerView extends RecyclerView {
     private TextView text;
     private PullToRefreshListener pullToRefresh;
     private LoadMoreListener loadMoreListener;
+    private int viewHeight;
 
     public class FixedViewInfo {
         public View view;
@@ -140,7 +141,7 @@ public class EnhanceRecyclerView extends RecyclerView {
         });
     }
 
-    public void touchMove(MotionEvent event){
+    public void touchMove(MotionEvent event) {
         endY = event.getY();
         moveY = endY - startY;
         //防止item向上滑出
@@ -155,12 +156,15 @@ public class EnhanceRecyclerView extends RecyclerView {
             params.width = RecyclerView.LayoutParams.MATCH_PARENT;
             params.height = RecyclerView.LayoutParams.WRAP_CONTENT;
             //使header随moveY的值从顶部渐渐出现
-            if (moveY >= 400){
+            if (moveY >= 400) {
                 moveY = 100 + moveY / 4;
-            }else {
+            } else {
                 moveY = moveY / 2;
             }
-            moveY = moveY - getHeaderView(0).getHeight();
+            viewHeight = getHeaderView(0).getHeight();
+            if (viewHeight <= 0)
+                viewHeight = 130;
+            moveY = moveY - viewHeight;
             params.setMargins(0, (int) moveY, 0, 0);
             getHeaderView(0).setLayoutParams(params);
             if (moveY > 80) {
@@ -175,29 +179,32 @@ public class EnhanceRecyclerView extends RecyclerView {
         }
     }
 
-    public void touchUp(){
-            if (!isRefreshing) {
-                RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
-                params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
-                params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
+    public void touchUp() {
+        if (!isRefreshing && (endY -startY) != 0 ) {
 
-                if (moveY >= 80) {
-                    text.setText(getResources().getString(R.string.refreshing));
-                    params1.setMargins(0, 0, 0, 0);
-                    isRefreshing = true;
-                    //刷新数据
-                    pullToRefresh.onRefreshing();
-                } else {
-                    params1.setMargins(0, -130, 0, 0);
-                    getHeaderView(0).setVisibility(GONE);
-                }
-                getHeaderView(0).setLayoutParams(params1);
+            RecyclerView.LayoutParams params1 = (RecyclerView.LayoutParams) getHeaderView(0).getLayoutParams();
+            params1.width = RecyclerView.LayoutParams.MATCH_PARENT;
+            params1.height = RecyclerView.LayoutParams.WRAP_CONTENT;
+
+            if (moveY >= 80) {
+                text.setText(getResources().getString(R.string.refreshing));
+                params1.setMargins(0, 0, 0, 0);
+                isRefreshing = true;
+                //刷新数据
+                pullToRefresh.onRefreshing();
+            } else {
+                if (viewHeight <= 0)
+                    viewHeight = 130;
+                params1.setMargins(0, -viewHeight, 0, 0);
+                getHeaderView(0).setVisibility(GONE);
             }
+            getHeaderView(0).setLayoutParams(params1);
+        }
     }
 
     public void addHeaderView(View view) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
-//        params.setMargins(0, -130, 0, 0);
+//        params.setMargins(0, - 130, 0, 0);
         view.setLayoutParams(params);
         view.setVisibility(GONE);
 

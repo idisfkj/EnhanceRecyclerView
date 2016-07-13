@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 //        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, OrientationHelper.VERTICAL));
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, OrientationHelper.VERTICAL));
 
         list = new ArrayList<>();
         for (int i = 0; i < 13; i++)
@@ -46,12 +46,11 @@ public class MainActivity extends AppCompatActivity {
 
         adapter = new RecyclerViewAdapter(this, list);
         mRecyclerView.setAdapter(adapter);
-        mRecyclerView.addItemDecoration(new MyItemDecoration(this));
+        mRecyclerView.addItemDecoration(new MyItemDecoration(this,10));
 
         mRecyclerView.setPullToRefreshListener(new EnhanceRecyclerView.PullToRefreshListener() {
             @Override
             public void onRefreshing() {
-//                mHandler.sendEmptyMessageDelayed(2, 3000);
                 refreshData();
             }
         });
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLoadMoreListener(new EnhanceRecyclerView.LoadMoreListener() {
             @Override
             public void onLoadMore() {
-//                mHandler.sendEmptyMessageDelayed(1,3000);
                 loadMoreData();
             }
         });
@@ -77,24 +75,6 @@ public class MainActivity extends AppCompatActivity {
              list.add("http://a.hiphotos.baidu.com/image/pic/item/03087bf40ad162d96270c41b13dfa9ec8a13cd1f.jpg");
         mRecyclerView.setLoadMoreComplete();
     }
-
-   /* Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == 1) {
-                for (int i = 0; i < 7; i++)
-                    list.add("http://a.hiphotos.baidu.com/image/pic/item/03087bf40ad162d96270c41b13dfa9ec8a13cd1f.jpg");
-                mRecyclerView.setLoadMoreComplete();
-            }
-            if (msg.what == 2) {
-                for (int i = 0; i < 2; i++)
-                    list.add(0, "http://img15.3lian.com/2015/a1/16/d/202.jpg");
-                mRecyclerView.setRefreshComplete();
-            }
-            super.handleMessage(msg);
-        }
-    };*/
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
