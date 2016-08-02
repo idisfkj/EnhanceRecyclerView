@@ -4,16 +4,16 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'enhanceRecyclerView'
 
-    publishedGroupId = 'com.idisfkj.recycler'
-    libraryName = 'EnchanceRecyclerView'
-    artifact = 'enchanceRecyclerView'
+    publishedGroupId = 'com.idisfkj.enchancerecyclerview'
+    libraryName = 'mylibrary'
+    artifact = 'mylibrary'
 
     libraryDescription = 'The EnchanceRecyclerView on Android'
 
     siteUrl = 'https://github.com/idisfkj/EnchanceRecyclerView'
     gitUrl = 'https://github.com/idisfkj/EnchanceRecyclerView.git'
 
-    libraryVersion = '1.0.0'
+    libraryVersion = '1.1.0'
 
     developerId = 'idisfkj'
     developerName = 'idisfkj'
