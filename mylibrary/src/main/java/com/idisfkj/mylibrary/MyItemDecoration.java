@@ -1,12 +1,10 @@
-package com.idisfkj.enhancerecyclerview.view;
+package com.idisfkj.mylibrary;
 
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-
-import com.idisfkj.enhancerecyclerview.R;
 
 /**
  * Created by idisfkj on 16/7/2.
@@ -18,7 +16,7 @@ public class MyItemDecoration extends RecyclerView.ItemDecoration {
     private int space;
 
     public MyItemDecoration(Context context, int space) {
-        drawable = context.getResources().getDrawable(R.drawable.item_decoration_bg);
+        drawable = context.getResources().getDrawable(R.drawable.item_decoration);
         this.space = space;
     }
 
@@ -30,7 +28,7 @@ public class MyItemDecoration extends RecyclerView.ItemDecoration {
         outRect.right = space;
         outRect.bottom = space;
         int position = parent.getChildAdapterPosition(view);
-        if (position == 0){
+        if (position == 0) {
             outRect.top = space;
         }
     }

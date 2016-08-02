@@ -1,4 +1,4 @@
-package com.idisfkj.enhancerecyclerview.view;
+package com.idisfkj.mylibrary;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -13,9 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.idisfkj.enhancerecyclerview.R;
-import com.idisfkj.enhancerecyclerview.adapter.WrapperRecyclerViewAdapter;
 
 import java.util.ArrayList;
 

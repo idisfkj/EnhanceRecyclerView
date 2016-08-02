@@ -1,4 +1,4 @@
-package com.idisfkj.enhancerecyclerview.adapter;
+package com.idisfkj.mylibrary;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -6,8 +6,6 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-
-import com.idisfkj.enhancerecyclerview.view.EnhanceRecyclerView;
 
 import java.util.ArrayList;
 
