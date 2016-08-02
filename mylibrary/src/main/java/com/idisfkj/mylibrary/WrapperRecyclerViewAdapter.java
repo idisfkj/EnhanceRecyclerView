@@ -1,4 +1,4 @@
-package com.idisfkj.enhancerecyclerview.adapter;
+package com.idisfkj.mylibrary;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -6,8 +6,6 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-
-import com.idisfkj.enhancerecyclerview.view.EnhanceRecyclerView;
 
 import java.util.ArrayList;
 
@@ -22,7 +20,7 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.Adapter mAdapter;
     public ArrayList<EnhanceRecyclerView.FixedViewInfo> EMPTY_INFO_LIST = new ArrayList<>();
     private boolean isStaggered;
-
+    private boolean isFooter;
 
     public WrapperRecyclerViewAdapter(ArrayList<EnhanceRecyclerView.FixedViewInfo> headerViewInfos,
                                       ArrayList<EnhanceRecyclerView.FixedViewInfo> footerViewInfos,
@@ -108,10 +106,12 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType >= EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE + getHeadersCount()) {
             View view = mHeaderViewInfos.get(viewType - EnhanceRecyclerView.BASE_HEADER_VIEW_TYPE).view;
+            isFooter = false;
 //            setVisibility(view);
             return viewHolder(view);
         } else if (viewType >= EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE && viewType < EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE + getFootersCount()) {
             View view = mFooterViewInfos.get(viewType - EnhanceRecyclerView.BASE_FOOTER_VIEW_TYPE).view;
+            isFooter = true;
             setVisibility(view);
             return viewHolder(view);
         }
@@ -176,12 +176,13 @@ public class WrapperRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         }
     }
 
-    private RecyclerView.ViewHolder viewHolder(View itemView) {
+    private RecyclerView.ViewHolder viewHolder(final View itemView) {
 
         if (isStaggered) {
             StaggeredGridLayoutManager.LayoutParams params = new StaggeredGridLayoutManager.LayoutParams(StaggeredGridLayoutManager.LayoutParams.MATCH_PARENT,
-                    StaggeredGridLayoutManager.LayoutParams.WRAP_CONTENT);
-            params.setMargins(0, -100, 0, 0);
+                    0);
+//            if (!isFooter)
+//                params.setMargins(0, -130, 0, 0);
             params.setFullSpan(true);
             itemView.setLayoutParams(params);
         }
