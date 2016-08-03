@@ -36,6 +36,7 @@ compile 'com.idisfkj.enchancerecyclerview:mylibrary:1.1.1'
         });
 ```
 
+`refreshData()`与`loadMoreData()`加载数据的逻辑就不展示了，只是要记住在请求网络数据完之后要在他们中调用相应的`mRecyclerView.setRefreshComplete()`与` mRecyclerView.setLoadMoreComplete()`来重置状态。
 至于其他的`Adapter`、`LayoutManager`等的设置就不多说了，与原生的`RecyclerView`是一样的。
 
 # 效果
